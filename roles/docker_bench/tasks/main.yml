@@ -1,0 +1,25 @@
+---
+# tasks for Docker security bench
+
+- name: install auditctl
+  apt: name=auditd state=present
+
+- name: add audit rules
+  lineinfile:
+     dest: /etc/audit/audit.rules
+     line: "{{ item.line }}"
+  with_items:
+     - { line: '-w /usr/bin/docker -k docker' }     
+     - { line: '-w /var/lib/docker -k docker' }     
+     - { line: '-w /etc/docker -k docker' }     
+     - { line: '-w /usr/lib/systemd/system/docker-registry.service -k docker' }     
+     - { line: '-w /usr/lib/systemd/system/docker.service -k docker' }     
+     - { line: '-w /var/run/docker.sock -k docker' }     
+     - { line: '-w /etc/sysconfig/docker -k docker' }     
+     - { line: '-w /etc/sysconfig/docker-network -k docker' }     
+     - { line: '-w /etc/sysconfig/docker-registry -k docker' }     
+     - { line: '-w /etc/sysconfig/docker-storage -k docker' }     
+     - { line: '-w /etc/default/docker -k docker' }     
+
+- name: restart audit daemon
+  service: name=auditd state=restarted
